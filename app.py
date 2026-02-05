@@ -13,8 +13,13 @@ app = Flask(__name__)
 app.secret_key = os.environ.get('SECRET_KEY', 'VeryStrongSecretKey123!')
 
 # Database configuration
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-DB_PATH = os.path.join(BASE_DIR, 'blog.db')
+# Use /tmp for database on Render (ephemeral storage)
+# Database will reset on each deployment, but that's OK for this demo
+if os.environ.get('RENDER'):
+    DB_PATH = '/tmp/blog.db'
+else:
+    BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+    DB_PATH = os.path.join(BASE_DIR, 'blog.db')
 
 # Database connection variables
 conn = None
@@ -892,3 +897,6 @@ if __name__ == "__main__":
     print("   • All posts: /post/view")
     
     app.run(debug=False, port=port, host='0.0.0.0')
+else:
+    # Initialize database when running with gunicorn
+    init_database()
